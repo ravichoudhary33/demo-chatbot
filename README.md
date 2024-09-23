@@ -44,3 +44,12 @@ OPENAI_API_KEY=sk-...
 ```bash
 python main.py
 ```
+
+**Docker compose method**
+```
+docker-compose up -d --build
+```
+ **Download model using ollama container id
+ ```
+ docker exec -it 8fa20d01f5ef ollama run phi
+ ```

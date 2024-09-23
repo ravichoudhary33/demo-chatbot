@@ -3,6 +3,7 @@ import sys
 
 from taipy.gui import Gui, State, notify
 import openai
+import ollama
 
 from dotenv import load_dotenv
 
@@ -57,6 +58,30 @@ def request(state: State, prompt: str) -> str:
     return response.choices[0].message.content
 
 
+def ollama_request(state: State, prompt: str) -> str:
+    """
+    Send a prompt to the ollama API and return the response.
+
+    Args:
+        - state: The current state of the app.
+        - prompt: The prompt to send to the API.
+
+    Returns:
+        The response from the API.
+    """
+    ollama_client = ollama.Client(host='http://ollama:11434')
+    response = ollama_client.chat(
+        messages=[
+            {
+                'role': 'user',
+                'content': f"{prompt}",
+            }
+        ],
+        model='phi:latest',
+    )
+    return response['message']['content']
+
+
 def update_context(state: State) -> None:
     """
     Update the context with the user's message and the AI's response.
@@ -65,7 +90,8 @@ def update_context(state: State) -> None:
         - state: The current state of the app.
     """
     state.context += f"Human: \n {state.current_user_message}\n\n AI:"
-    answer = request(state, state.context).replace("\n", "")
+    # answer = request(state, state.context).replace("\n", "")
+    answer = ollama_request(state, state.context).replace("\n", "")
     state.context += answer
     state.selected_row = [len(state.conversation["Conversation"]) + 1]
     return answer
@@ -172,7 +198,7 @@ past_prompts = []
 page = """
 <|layout|columns=300px 1|
 <|part|class_name=sidebar|
-# Taipy **Chat**{: .color-primary} # {: .logo-text}
+# JanSamvad **AI**{: .color-primary} # {: .logo-text}
 <|New Conversation|button|class_name=fullwidth plain|id=reset_app_button|on_action=reset_chat|>
 ### Previous activities ### {: .h5 .mt2 .mb-half}
 <|{selected_conv}|tree|lov={past_conversations}|class_name=past_prompts_list|multiple|adapter=tree_adapter|on_change=select_conv|>

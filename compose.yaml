@@ -1,0 +1,19 @@
+services:
+  web:
+    build: .
+    container_name: demo-chatbot
+    ports:
+      - '5000:5000'
+    volumes:
+      - .:/app
+    restart: "no"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
+
+  ollama:
+    image: ollama/ollama
+    volumes:
+      - ./data/ollama:/root/.ollama
+    ports:
+      - 11434:11434
