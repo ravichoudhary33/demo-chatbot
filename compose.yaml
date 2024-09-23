@@ -10,6 +10,9 @@ services:
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
+    depends_on:
+      - ollama
+      # - ollama_init
 
   ollama:
     image: ollama/ollama
@@ -17,3 +20,18 @@ services:
       - ./data/ollama:/root/.ollama
     ports:
       - 11434:11434
+    
+  # ollama_init:
+  #   image: ollama/ollama
+  #   volumes:
+  #     - ./data/ollama:/root/.ollama
+  #     - ./data/tmp:/tmp/
+  #   depends_on:
+  #     - ollama
+  #   command: |
+  #       if [[ $(ollama list | tail -n +2 | wc -l) -eq 0 ]]; then
+  #         echo 'Running the command...' > /tmp/output.txt 
+  #         ollama run phi
+  #       else:
+  #         echo 'Model already exist!' > /tmp/output.txt
+  #       fi

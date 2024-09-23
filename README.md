@@ -45,11 +45,18 @@ OPENAI_API_KEY=sk-...
 python main.py
 ```
 
-**Docker compose method**
+**Docker compose method (no api key required) uses ollama locally**
+1. Build with docker compose
 ```
 docker-compose up -d --build
 ```
- **Download model using ollama container id
+
+2. get the container id of ollama 
+```
+ docker ps
  ```
- docker exec -it 8fa20d01f5ef ollama run phi
+
+3. Download model using ollama container id
+ ```
+ docker exec -it <ContainerID> ollama run phi
  ```
