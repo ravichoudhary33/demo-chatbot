@@ -13,9 +13,9 @@ ollama_client = None
 collection = None
 
 client = None
-context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today? "
+context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI assistant. How can I help you today? "
 conversation = {
-    "Conversation": ["Who are you?", "Hi! I am GPT-4. How can I help you today?"]
+    "Conversation": ["Who are you?", "Hi! I am JanSamvad AI assistant. How can I help you today?"]
 }
 current_user_message = ""
 past_conversations = []
@@ -30,9 +30,9 @@ def on_init(state: State) -> None:
     Args:
         - state: The current state of the app.
     """
-    state.context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today? "
+    state.context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI assistant. How can I help you today? "
     state.conversation = {
-        "Conversation": ["Who are you?", "Hi! I am GPT-4. How can I help you today?"]
+        "Conversation": ["Who are you?", "Hi! I am JanSamvad AI assistant. How can I help you today?"]
     }
     state.current_user_message = ""
     state.past_conversations = []
@@ -43,7 +43,7 @@ def on_init(state: State) -> None:
 
 def request(state: State, prompt: str) -> str:
     """
-    Send a prompt to the GPT-4 API and return the response.
+    Send a prompt to the JanSamvad AI assistant API and return the response.
 
     Args:
         - state: The current state of the app.
@@ -85,7 +85,7 @@ def ollama_request(state: State, prompt: str) -> str:
         n_results=2
     )
 
-    notify(state, "info", f"results...{results}")
+    # notify(state, "info", f"results...{results}")
 
     data = "\n".join(results['documents'][0])
     #ollama_client = ollama.Client(host='http://ollama:11434')
@@ -210,7 +210,7 @@ def select_conv(state: State, var_name: str, value) -> None:
         value: [[id, conversation]]
     """
     state.conversation = state.past_conversations[value[0][0]][1]
-    state.context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today? "
+    state.context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI assistant. How can I help you today? "
     for i in range(2, len(state.conversation["Conversation"]), 2):
         state.context += f"Human: \n {state.conversation['Conversation'][i]}\n\n AI:"
         state.context += state.conversation["Conversation"][i + 1]

@@ -55,6 +55,7 @@ services:
     environment:
       JUPYTER_ENABLE_LAB: "yes"
       JUPYTER_PASSWORD: ""
+      # JUPYTER_TOKEN: "" # Set an empty token to disable password
 
 
     
