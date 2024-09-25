@@ -4,8 +4,13 @@ import sys
 from taipy.gui import Gui, State, notify
 import openai
 import ollama
+import chromadb
 
 from dotenv import load_dotenv
+
+chromadb_client = None
+ollama_client = None
+collection = None
 
 client = None
 context = "The following is a conversation with an AI assistant. The assistant is helpful, creative, clever, and very friendly.\n\nHuman: Hello, who are you?\nAI: I am an AI created by OpenAI. How can I help you today? "
@@ -33,6 +38,7 @@ def on_init(state: State) -> None:
     state.past_conversations = []
     state.selected_conv = None
     state.selected_row = [1]
+    state.collection = state.chromadb_client.get_collection(name="docs")
 
 
 def request(state: State, prompt: str) -> str:
@@ -69,16 +75,34 @@ def ollama_request(state: State, prompt: str) -> str:
     Returns:
         The response from the API.
     """
-    ollama_client = ollama.Client(host='http://ollama:11434')
-    response = ollama_client.chat(
+    # generate an embedding for the prompt and retrieve the most relevant doc
+    embedding_response = state.ollama_client.embeddings(
+        prompt=prompt,
+        model='phi:latest'
+    )
+    results = state.collection.query(
+        query_embeddings=[embedding_response["embedding"]],
+        n_results=2
+    )
+
+    notify(state, "info", f"results...{results}")
+
+    data = "\n".join(results['documents'][0])
+    #ollama_client = ollama.Client(host='http://ollama:11434')
+    response = state.ollama_client.chat(
         messages=[
             {
                 'role': 'user',
-                'content': f"{prompt}",
+                'content': f"Using this data: {data}. Respond to this prompt: {prompt}",
             }
         ],
         model='phi:latest',
+        stream=False
     )
+    # response = ""
+    # for chunk in stream_response:
+    #     print(chunk['message']['content'], end='', flush=True)
+    # return response['message']['content']
     return response['message']['content']
 
 
@@ -156,7 +180,7 @@ def reset_chat(state: State) -> None:
         [len(state.past_conversations), state.conversation]
     ]
     state.conversation = {
-        "Conversation": ["Who are you?", "Hi! I am GPT-4. How can I help you today?"]
+        "Conversation": ["Who are you?", "Hi! I am JanSamvad AI assistant. How can I help you today?"]
     }
 
 
@@ -217,5 +241,7 @@ if __name__ == "__main__":
     load_dotenv()
 
     client = openai.Client(api_key=os.getenv("OPENAI_API_KEY"))
+    chromadb_client = chromadb.HttpClient(host="chromadb-vecdb", port=8000)
+    ollama_client = ollama.Client(host='http://ollama:11434')
 
     Gui(page).run(debug=True, dark_mode=True, use_reloader=True, title="💬 Taipy Chat")

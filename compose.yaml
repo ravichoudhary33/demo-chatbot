@@ -6,7 +6,7 @@ services:
       - '5000:5000'
     volumes:
       - .:/app
-    restart: "no"
+    restart: "on-failure"
     environment:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
     command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
@@ -20,6 +20,43 @@ services:
       - ./data/ollama:/root/.ollama
     ports:
       - 11434:11434
+  
+  # redis-vecdb:
+  #   image: redis/redis-stack:latest
+  #   ports:
+  #     - "6379:6379"
+  #     - "8001:8001"
+  #   volumes:
+  #       - ./data/redis_data:/data
+
+  chromadb-vecdb:
+    image: chromadb/chroma:latest
+    volumes:
+      - ./chromadb:/chroma/chroma
+    environment:
+      - IS_PERSISTENT=TRUE
+      - PERSIST_DIRECTORY=/chroma/chroma # this is the default path, change it as needed
+      - ANONYMIZED_TELEMETRY=${ANONYMIZED_TELEMETRY:-TRUE}
+    ports:
+      - 8000:8000
+    
+  jupyter:
+    image: jupyter/minimal-notebook:latest
+    container_name: jupyter
+    volumes:
+      - .:/home/jovyan/work
+      - ./jupyter:/home/jovyan/.jupyter
+    ports:
+      - 8888:8888
+    depends_on:
+      # - "redis-vecdb"
+      - "ollama"
+      - "chromadb-vecdb"
+    environment:
+      JUPYTER_ENABLE_LAB: "yes"
+      JUPYTER_PASSWORD: ""
+
+
     
   # ollama_init:
   #   image: ollama/ollama
