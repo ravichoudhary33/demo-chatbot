@@ -47,15 +47,23 @@ if prompt := st.chat_input("What is up?"):
         st.markdown(prompt)
 
     rag_context_str = retrieve_context(prompt)
+    conv_messages = [
+        {"role": m["role"], "content": m["content"]}
+        for m in st.session_state.messages
+    ]
+    conv_messages.append(
+        {
+            'role': 'user',
+            'content': f"""Given the following context: {rag_context_str}, 
+                           provide a concise and direct response to this prompt: {prompt}.
+                           Limit your answer to a maximum of 50 words.
+                           Do not provide explanations unless explicitly asked.""",
+        }
+    )
     with st.chat_message("assistant"):
         stream = ollama_client.chat(
             model=st.session_state["ollama_model"],
-            messages = [
-                {
-                    'role': 'user',
-                    'content': f"Using this data: {rag_context_str}. Respond to this prompt in no more then 50 words: {prompt}",
-                }
-            ],
+            messages = conv_messages,
             # messages=[
             #     {"role": m["role"], "content": m["content"]}
             #     for m in st.session_state.messages

@@ -1,7 +1,7 @@
 # Taipy LLM Chat Demo
 
 <p align="center">
-  <img src="media/app_demo_2.png" alt="A conversation about calibers" width="100%"/>
+  <img src="media/streamlit_app_ss.png" alt="A conversation about calibers" width="100%"/>
 </p>
 
 A simple app to chat with an LLM which can be used to create any LLM Inference Web Apps using Python only.
