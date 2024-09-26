@@ -56,6 +56,15 @@ services:
       JUPYTER_ENABLE_LAB: "yes"
       JUPYTER_PASSWORD: ""
       # JUPYTER_TOKEN: "" # Set an empty token to disable password
+  
+  streamlit_app:
+    build:
+      dockerfile: ./app/Dockerfile
+      context: ./
+    ports:
+      - '8501:8501'
+    volumes:
+      - './app:/app'
 
 
     

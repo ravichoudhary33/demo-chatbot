@@ -1,5 +1,6 @@
 import os
 import sys
+import time
 
 from taipy.gui import Gui, State, notify
 import openai
@@ -64,6 +65,22 @@ def request(state: State, prompt: str) -> str:
     return response.choices[0].message.content
 
 
+def retrieve_context(state: State, prompt: str) -> str:
+    # generate an embedding for the prompt and retrieve the most relevant doc
+    prompt_embedding = state.ollama_client.embeddings(
+        prompt=prompt,
+        model='phi:latest'
+    )
+    # get relevant document
+    rag_contexts = state.collection.query(
+        query_embeddings=[prompt_embedding["embedding"]],
+        n_results=2
+    )
+    # build the rag context string
+    rag_context_str = "\n".join(rag_contexts['documents'][0])
+    return rag_context_str
+
+
 def ollama_request(state: State, prompt: str) -> str:
     """
     Send a prompt to the ollama API and return the response.
@@ -75,36 +92,64 @@ def ollama_request(state: State, prompt: str) -> str:
     Returns:
         The response from the API.
     """
-    # generate an embedding for the prompt and retrieve the most relevant doc
-    embedding_response = state.ollama_client.embeddings(
-        prompt=prompt,
-        model='phi:latest'
-    )
-    results = state.collection.query(
-        query_embeddings=[embedding_response["embedding"]],
-        n_results=2
-    )
+    # retrieve the rag context first for the input prompt
+    rag_context_str = retrieve_context(state, prompt)
 
-    # notify(state, "info", f"results...{results}")
-
-    data = "\n".join(results['documents'][0])
     #ollama_client = ollama.Client(host='http://ollama:11434')
     response = state.ollama_client.chat(
         messages=[
             {
                 'role': 'user',
-                'content': f"Using this data: {data}. Respond to this prompt: {prompt}",
+                'content': f"Using this data: {rag_context_str}. Respond to this prompt: {prompt}",
             }
         ],
         model='phi:latest',
         stream=False
     )
-    # response = ""
-    # for chunk in stream_response:
-    #     print(chunk['message']['content'], end='', flush=True)
-    # return response['message']['content']
-    return response['message']['content']
+    answer = response['message']['content'].replace("\n", "")
+    if answer in ['', ' ']:
+        answer = "Please add more specific detail about the query!"
+    
+    return answer
 
+# send message v2 version for streaming
+def send_message_v2(state: State) -> None:
+    
+    notify(state, "info", "Sending message and streaming...")
+    # update context mehtod 
+    state.context += f"Human: \n {state.current_user_message}\n\n AI:"
+    prompt = state.context
+    # answer = request(state, state.context).replace("\n", "")
+    rag_context_str = retrieve_context(state, prompt)
+    # use the rag context generate llm output in stream fashion
+    stream = state.ollama_client.chat(
+        messages=[
+            {
+                'role': 'user',
+                'content': f"Using this data: {rag_context_str}. Respond to this prompt: {prompt}",
+            }
+        ],
+        model='phi:latest',
+        stream=True
+    )
+    # using stream generator stream the result
+    conv = state.conversation._dict.copy()
+    # append current user message and empty string as last message as dummy
+    conv["Conversation"] += [state.current_user_message, '']
+    answer = ""
+    for chunk in stream:
+        msg_chunks = chunk['message']['content']
+        answer += msg_chunks
+        #print(msg_chunks, end='', flush=True)
+        conv["Conversation"][-1] = [answer] # update the last message with the stream chunk message
+        
+    state.context += answer
+    state.selected_row = [len(state.conversation["Conversation"]) + 1]
+    # update contex is complete
+    # set the current user message to empty string
+    state.current_user_message = ""
+    state.conversation = conv
+    notify(state, "success", "Stream response received!")
 
 def update_context(state: State) -> None:
     """
@@ -115,7 +160,7 @@ def update_context(state: State) -> None:
     """
     state.context += f"Human: \n {state.current_user_message}\n\n AI:"
     # answer = request(state, state.context).replace("\n", "")
-    answer = ollama_request(state, state.context).replace("\n", "")
+    answer = ollama_request(state, state.context)
     state.context += answer
     state.selected_row = [len(state.conversation["Conversation"]) + 1]
     return answer

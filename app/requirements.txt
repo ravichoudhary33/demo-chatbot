@@ -1,0 +1,6 @@
+streamlit
+ollama
+chromadb
+llama-index
+llama-index-vector-stores-redis
+langchain_ollama
