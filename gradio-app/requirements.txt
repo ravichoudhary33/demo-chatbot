@@ -1,0 +1,7 @@
+gradio
+torch 
+transformers 
+torchaudio
+ollama
+chromadb
+llama-index
