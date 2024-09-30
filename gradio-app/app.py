@@ -6,14 +6,14 @@ from transformers import pipeline
 import numpy as np
 import chromadb
 
-from langdetect import detect
-from translate import Translator
+# from langdetect import detect
+# from translate import Translator
 
 # history = [["user_msg_1", "bot_msg_1"], ["user_msg_2", "bot_msg_2"]]
 
 MODEL = "llama3.1:8b"
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
-hi_2_en_translator = Translator(from_lang="hi", to_lang="en")
+# hi_2_en_translator = Translator(from_lang="hi", to_lang="en")
 
 
 chromadb_client = chromadb.HttpClient(host="chromadb-vecdb", port=8000)
@@ -37,7 +37,7 @@ def retrieve_context(prompt):
 
 
 def rag_bot(history):
-    print(f"bot history: {history}")
+    # print(f"bot history: {history}")
     client = ollama_client#ollama.Client(host='http://ollama:11434')
     messages = []
     for human, ai in history[:-1]:
@@ -49,7 +49,7 @@ def rag_bot(history):
     # get the user prompt from history
     prompt = history[-1][0]
     rag_context_str, rag_contexts = retrieve_context(prompt)
-    print(f"rag_context: {rag_contexts}")
+    # print(f"rag_context: {rag_contexts}")
     # append the last user message with rag context
     messages.append(
         {
@@ -116,13 +116,13 @@ with gr.Blocks() as demo:
     clear = gr.Button("Clear")
 
     def user(user_message, history, audio_input):
-        print(f"user_msg: {user_message}")
-        if user_message['text']:
-            user_lang = detect(user_message['text'])
-            print(f"user_lang: {user_lang}")
-            if user_lang == 'hi':
-                # translate to eng
-                user_message['text'] = hi_2_en_translator.translate(user_message['text'])
+        # print(f"user_msg: {user_message}")
+        # if user_message['text']:
+        #     user_lang = detect(user_message['text'])
+        #     print(f"user_lang: {user_lang}")
+        #     if user_lang == 'hi':
+        #         # translate to eng
+        #         user_message['text'] = hi_2_en_translator.translate(user_message['text'])
 
         if not user_message["text"] and audio_input:
             user_message["text"] = transcribe(audio_input)
