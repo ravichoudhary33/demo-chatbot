@@ -1,18 +1,18 @@
 services:
-  # web:
-  #   build: .
-  #   container_name: demo-chatbot
-  #   ports:
-  #     - '5000:5000'
-  #   volumes:
-  #     - .:/app
-  #   restart: "on-failure"
-  #   environment:
-  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
-  #   command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
-  #   depends_on:
-  #     - ollama
-  #     # - ollama_init
+  web:
+    build: .
+    container_name: demo-chatbot
+    ports:
+      - '5000:5000'
+    volumes:
+      - .:/app
+    restart: "on-failure"
+    environment:
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
+    depends_on:
+      - ollama
+      # - ollama_init
 
   ollama:
     image: ollama/ollama

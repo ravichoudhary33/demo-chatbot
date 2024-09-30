@@ -16,10 +16,11 @@ RUN pip install -r requirements.txt
 
 # Copy the application source code.
 COPY ./gradio-app/app.py .
+COPY ./gradio-app/models.py .
 
 # RUN pip install --no-cache-dir gradio
 EXPOSE 7860
 ENV GRADIO_SERVER_NAME="0.0.0.0"
 
-# CMD ["gradio", "app.py"]
-CMD ["python", "app.py"]
+CMD ["gradio", "app.py"]
+# CMD ["python", "app.py"]

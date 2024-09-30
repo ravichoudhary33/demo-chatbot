@@ -3,5 +3,7 @@ openai==1.3.7
 ollama
 chromadb
 llama-index
-llama-index-vector-stores-redis
-langchain_ollama
+torch 
+transformers 
+torchaudio
+sentencepiece

@@ -1,11 +1,11 @@
 import gradio as gr
-from transformers import pipeline
-import numpy as np
 import random
 import time
 import ollama
+from transformers import pipeline
+import numpy as np
 
-model = "phi:latest"
+# history = [["user_msg_1", "bot_msg_1"], ["user_msg_2", "bot_msg_2"]]
 
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 
@@ -21,46 +21,64 @@ def transcribe(audio):
 
     return transcriber({"sampling_rate": sr, "raw": y})["text"]
 
-def predict(message, history, system_prompt, audio_input):
+def bot(history):
+    print(f"bot history: {history}")
+    client = ollama.Client(host='http://ollama:11434')
+    messages = []
+    for human, ai in history[:-1]:
+        if human:
+            messages.append({"role": "user", "content": human})
+        if ai:
+            messages.append({"role": "assistant", "content": ai})
 
-    if len(message) < 1:
-        message = audio_input #transcribe(audio_input)
-        print(f"audio_input: {message}")
+    # append the last user message
+    messages.append(
+        {
+            "role": "user", "content": history[-1][0]
+        }
+    )
+    stream = client.chat(model="phi:latest", stream=True, messages=messages)
 
-    convo_history = []
-    for human, assistant in history:
-        convo_history.append({"role": "user", "content": human })
-        convo_history.append({"role": "assistant", "content":assistant})
-    
-    convo_history.append({"role": "user", "content": message})
-    print(f"convo_history: {convo_history}")
-    
-    ollama_client = ollama.Client(host='http://ollama:11434')
-    response = ollama_client.chat(model=model, stream=True, messages=convo_history)
+    history[-1][1] = ""
+    for chunk in stream:
+        if chunk["message"]["content"] is not None:
+            history[-1][1] += chunk["message"]["content"]
+            yield history
 
-    partial_message = ""
-    for chunk in response:
-        partial_message = partial_message + chunk["message"]["content"]
-        yield partial_message
-    
-    #print(f"partial_message: {partial_message}")
 
 with gr.Blocks() as demo:
-    system_prompt = gr.Textbox("You are helpful AI.", label="System Prompt")
-    # audio_output = gr.Textbox(label="Transcribed Audio")
-    # audio_interface = gr.Interface(
-    #     transcribe,
-    #     gr.Audio(sources="microphone"),
-    #     outputs=audio_output,
-    # )
+    chatbot = gr.Chatbot()
+    # msg = gr.Textbox()
+    msg = gr.MultimodalTextbox(interactive=True,
+                                      file_count="multiple",
+                                      placeholder="Enter message or upload file...", show_label=False)
     audio_input = gr.Audio(sources="microphone")
-    b1 = gr.Button("Recognize Speech")
-    audio_input_text = gr.Textbox()
-    b1.click(transcribe, inputs=audio_input, outputs=audio_input_text)
+    clear = gr.Button("Clear")
 
-    gr.ChatInterface(
-        predict, additional_inputs=[system_prompt, audio_input_text]
+    def user(user_message, history, audio_input):
+        print(f"user_msg: {user_message}")
+        if not user_message["text"] and audio_input:
+            user_message["text"] = transcribe(audio_input)
+            audio_input = None
+        
+        updated_history = history + [[user_message["text"], None]]
+        user_message["text"] = ""
+        return user_message, updated_history
+
+    # def bot(history):
+    #     bot_message = random.choice(["How are you?", "I love you", "I'm very hungry"])
+    #     history[-1][1] = ""
+    #     for character in bot_message:
+    #         history[-1][1] += character
+    #         time.sleep(0.05)
+    #         yield history
+
+    msg.submit(user, [msg, chatbot, audio_input], [msg, chatbot], queue=False).then(
+        bot, chatbot, chatbot
     )
+    clear.click(lambda: None, None, chatbot, queue=False)
 
 if __name__ == "__main__":
-    demo.launch(share=True)
+    demo.queue(default_concurrency_limit=10)
+    demo.launch()
+
