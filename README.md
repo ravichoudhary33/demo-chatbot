@@ -4,9 +4,6 @@
   <img src="media/app_thumbnail.png" alt="A conversation about calibers" width="100%"/>
 </p>
 
-[![Watch the video](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/app_thumbnail.png)](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/jansamvad_demo_1080p.mp4)
-
-
 https://github.com/user-attachments/assets/11afcd55-2ab9-486c-972f-4ee2420d0521
 
 
