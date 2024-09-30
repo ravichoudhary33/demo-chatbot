@@ -15,12 +15,15 @@ MODEL = "llama3.1:8b"
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 # hi_2_en_translator = Translator(from_lang="hi", to_lang="en")
 
+rag_cache = {}
 
 chromadb_client = chromadb.HttpClient(host="chromadb-vecdb", port=8000)
 collection = chromadb_client.get_collection(name="docs")
 ollama_client = ollama.Client(host='http://ollama:11434')
 
 def retrieve_context(prompt):
+    if prompt in rag_cache:
+        return rag_cache[prompt]
     # generate an embedding for the prompt and retrieve the most relevant doc
     prompt_embedding = ollama_client.embeddings(
         prompt=prompt,

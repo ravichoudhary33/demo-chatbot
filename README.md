@@ -4,6 +4,9 @@
   <img src="media/streamlit_app_ss.png" alt="A conversation about calibers" width="100%"/>
 </p>
 
+[![Watch the video](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/app_thumbnail.png)](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/jansamvad_demo.mov)
+
+
 A simple app to chat with an LLM which can be used to create any LLM Inference Web Apps using Python only.
 
 This particular app uses OpenAI's GPT-4 API to generate responses to your messages. You can easily change the code to use any other API or model.
