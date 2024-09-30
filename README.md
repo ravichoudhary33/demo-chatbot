@@ -7,6 +7,10 @@
 [![Watch the video](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/app_thumbnail.png)](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/jansamvad_demo_1080p.mp4)
 
 
+https://github.com/user-attachments/assets/11afcd55-2ab9-486c-972f-4ee2420d0521
+
+
+
 A simple app to chat with an LLM which can be used to create any LLM Inference Web Apps using Python only.
 
 This particular app uses OpenAI's GPT-4 API to generate responses to your messages. You can easily change the code to use any other API or model.
