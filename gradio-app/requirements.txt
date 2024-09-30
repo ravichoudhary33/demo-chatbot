@@ -5,3 +5,5 @@ torchaudio
 ollama
 chromadb
 llama-index
+langdetect
+translate
