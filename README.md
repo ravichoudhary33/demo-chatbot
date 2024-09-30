@@ -1,10 +1,10 @@
 # Taipy LLM Chat Demo
 
 <p align="center">
-  <img src="media/streamlit_app_ss.png" alt="A conversation about calibers" width="100%"/>
+  <img src="media/app_thumbnail.png" alt="A conversation about calibers" width="100%"/>
 </p>
 
-[![Watch the video](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/app_thumbnail.png)](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/jansamvad_demo.mov)
+[![Watch the video](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/app_thumbnail.png)](https://raw.githubusercontent.com/ravichoudhary33/demo-chatbot/tree/develop/media/jansamvad_demo_1080p.mov)
 
 
 A simple app to chat with an LLM which can be used to create any LLM Inference Web Apps using Python only.
