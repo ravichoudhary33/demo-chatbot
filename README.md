@@ -12,8 +12,6 @@ A simple app to chat with an LLM which can be used to query Governemnt Schemes.
 
 This particular app uses Ollama API to generate responses to your messages.
 
-## Tutorial
-
 
 ## How to Use
 
@@ -44,4 +42,4 @@ bafb2793125a   chromadb/chroma:latest            "/docker_entrypoint.…"   5 ho
  ```
 4. Open jupter notebook at `0.0.0.0:8888` in the browser, enter while asking for password since password is empty and run the `vec_store_util.ipynb` notebook to create collection, you can see the running container and exposed ports by using `docker ps`
 
- 5. Open gradio app at `localhost:7860` in your browser to interact with the open
+ 5. Open gradio app at `localhost:7860` in your browser to interact with the app
