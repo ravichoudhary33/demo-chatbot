@@ -5,20 +5,28 @@ import ollama
 from transformers import pipeline
 import numpy as np
 import chromadb
+import logging
+import hashlib
+
+import logging
+logging.basicConfig(filename='example.log',level=logging.DEBUG)
 
 # from langdetect import detect
 # from translate import Translator
 
 # history = [["user_msg_1", "bot_msg_1"], ["user_msg_2", "bot_msg_2"]]
 
-MODEL = "llama3.1:8b"
+MODEL = "llama3.2:1b"#"llama3.1:8b"
+MODEL_HASH = hashlib.sha256(MODEL.encode()).hexdigest()[-5:]
+COLLECTION_NAME = f"docs_{MODEL_HASH}"
+
 transcriber = pipeline("automatic-speech-recognition", model="openai/whisper-base.en")
 # hi_2_en_translator = Translator(from_lang="hi", to_lang="en")
 
 rag_cache = {}
 
 chromadb_client = chromadb.HttpClient(host="chromadb-vecdb", port=8000)
-collection = chromadb_client.get_collection(name="docs")
+collection = chromadb_client.get_collection(name=COLLECTION_NAME)
 ollama_client = ollama.Client(host='http://ollama:11434')
 
 def retrieve_context(prompt):
@@ -36,6 +44,7 @@ def retrieve_context(prompt):
     )
     # build the rag context string
     rag_context_str = "\n".join(rag_contexts['documents'][0])
+    rag_cache[prompt] = rag_context_str
     return rag_context_str, rag_contexts
 
 
@@ -52,6 +61,7 @@ def rag_bot(history):
     # get the user prompt from history
     prompt = history[-1][0]
     rag_context_str, rag_contexts = retrieve_context(prompt)
+    logging.info(f'rag_contexts: {history}')
     # print(f"rag_context: {rag_contexts}")
     # append the last user message with rag context
     messages.append(

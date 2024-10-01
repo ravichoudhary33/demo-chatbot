@@ -1,18 +1,18 @@
 services:
-  web:
-    build: .
-    container_name: demo-chatbot
-    ports:
-      - '5000:5000'
-    volumes:
-      - .:/app
-    restart: "on-failure"
-    environment:
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-    command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
-    depends_on:
-      - ollama
-      # - ollama_init
+  # web:
+  #   build: .
+  #   container_name: demo-chatbot
+  #   ports:
+  #     - '5000:5000'
+  #   volumes:
+  #     - .:/app
+  #   restart: "on-failure"
+  #   environment:
+  #     - OPENAI_API_KEY=${OPENAI_API_KEY}
+  #   command: ["taipy", "run", "--no-debug", "--no-reloader", "main.py", "-H", "0.0.0.0", "-P", "5000"]
+  #   depends_on:
+  #     - ollama
+  #     # - ollama_init
 
   ollama:
     image: ollama/ollama
@@ -57,14 +57,15 @@ services:
       JUPYTER_PASSWORD: ""
       # JUPYTER_TOKEN: "" # Set an empty token to disable password
   
-  streamlit_app:
-    build:
-      dockerfile: ./app/Dockerfile
-      context: ./
-    ports:
-      - '8501:8501'
-    volumes:
-      - './app:/app'
+  # streamlit_app:
+  #   build:
+  #     dockerfile: ./app/Dockerfile
+  #     context: ./
+  #   ports:
+  #     - '8501:8501'
+  #   volumes:
+  #     - './app:/app'
+  #     # - './utils:/app'
 
   gradio_app:
     build:
@@ -74,20 +75,19 @@ services:
       - '7860:7860'
     volumes:
       - './gradio-app:/usr/src/app'
+    depends_on:
+      - "ollama"
+      - "chromadb-vecdb"
+      # - "vec_db_init"
 
-
-    
-  # ollama_init:
-  #   image: ollama/ollama
+  
+  # vec_db_init:
+  #   build:
+  #     dockerfile: ./vec_store/Dockerfile
+  #     context: ./
   #   volumes:
-  #     - ./data/ollama:/root/.ollama
-  #     - ./data/tmp:/tmp/
+  #     - ./vec_store:/app
+  #   restart: "on-failure"
   #   depends_on:
-  #     - ollama
-  #   command: |
-  #       if [[ $(ollama list | tail -n +2 | wc -l) -eq 0 ]]; then
-  #         echo 'Running the command...' > /tmp/output.txt 
-  #         ollama run phi
-  #       else:
-  #         echo 'Model already exist!' > /tmp/output.txt
-  #       fi
+  #     - "ollama"
+  #     - "chromadb-vecdb"

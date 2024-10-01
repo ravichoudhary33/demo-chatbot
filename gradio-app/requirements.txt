@@ -7,3 +7,4 @@ chromadb
 llama-index
 langdetect
 translate
+swifter
